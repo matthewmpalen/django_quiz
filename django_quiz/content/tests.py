@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 # Django
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
+from django.core.urlresolvers import reverse
 from django.db.utils import IntegrityError
-from django.test import TestCase
+from django.test import Client, TestCase
 
 # Local
 from .models import Answer, Lesson, Question, Quiz
+from .views import LessonListView
+
+###############################################################################
+# Models
+###############################################################################
 
 #########
 # Lesson
@@ -348,3 +354,35 @@ class AnswerDuplicateTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             answer = Answer.objects.create(user=self.user, 
                 question=self.question)
+
+###############################################################################
+# Views
+###############################################################################
+
+class LessonListViewTestCase(TestCase):
+    def setUp(self):
+        self.url = reverse('lesson_list')
+        self.client = Client()
+
+        self.lesson1 = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+        self.lesson2 = Lesson.objects.create(title='Strength Training', 
+            body='1-5 reps.')
+
+        self.username = 'testuser'
+        self.password = '0xdeadbeef'
+        self.user = User.objects.create_user(username=self.username, 
+            password=self.password)
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        object_list = response.context['object_list']
+
+        self.assertTrue(self.lesson1 in object_list)
+        self.assertTrue(self.lesson2 in object_list)
