@@ -200,6 +200,20 @@ class QuestionCorrectAnswerTestCase(TestCase):
             body='Question body')
         self.assertFalse(question.correct_answer)
 
+class QuestionDuplicateTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Lesson title', 
+            body='Lesson body')
+
+        self.quiz = Quiz.objects.create(lesson=self.lesson, title='Quiz title')
+
+        self.body = 'Question body'
+        self.question = Question.objects.create(quiz=self.quiz, body=self.body)
+
+    def test_duplicate_creation(self):
+        with self.assertRaises(IntegrityError):
+            question = Question.objects.create(quiz=self.quiz, body=self.body)
+
 #########
 # Answer
 #########
@@ -308,3 +322,29 @@ class AnswerChoiceTestCase(TestCase):
         self.assertEqual(answer.question, self.question)
         self.assertEqual(answer.choice, self.choice2)
         self.assertFalse(answer.is_correct)
+
+class AnswerDuplicateTestCase(TestCase):
+    def setUp(self):
+        self.user_username = 'testuser'
+        self.user = User.objects.create(username=self.user_username)
+        
+        self.lesson_title = 'Lesson title'
+        self.lesson_body = 'Lesson body'
+        self.lesson = Lesson.objects.create(title=self.lesson_title, 
+            body=self.lesson_body)
+
+        self.quiz_title = 'Quiz title'
+        self.quiz = Quiz.objects.create(lesson=self.lesson, 
+            title=self.quiz_title)
+
+        self.question_body = 'Question body'
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body=self.question_body)
+
+        self.answer = Answer.objects.create(user=self.user, 
+            question=self.question)
+
+    def test_duplicate_creation(self):
+        with self.assertRaises(IntegrityError):
+            answer = Answer.objects.create(user=self.user, 
+                question=self.question)
