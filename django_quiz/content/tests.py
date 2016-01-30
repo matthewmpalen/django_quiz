@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # Django
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.utils import IntegrityError
 from django.test import Client, TestCase
 
 # Local
 from .models import Answer, Lesson, Question, Quiz
-from .views import LessonListView
 
 ###############################################################################
 # Models
