@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load content_tags %}
+
+{% block head_title %}{% trans 'Quizzer' %}{% endblock %}
+
+{% block body_content %}
+<div class="row spacer">
+  <div class="container">
+    <div class="jumbotron">
+      <h1>{{ object.title }}</h1>
+    </div>
+
+    <div class="col-sm-12 text-center">
+      {% if done %}
+      <h2>See your results!</h2>
+      <a class="btn btn-success btn-lg" 
+        href="{% url 'quiz_answer_list' object.id %}">
+        Review
+      </a>
+      {% else %}
+      <h2>Ready to begin?</h2>
+      <a class="btn btn-primary btn-lg" 
+        href="{% url 'question_detail' object.question_set.first.id %}">
+        Start quiz
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div><!-- .row spacer -->
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans 'Quizzer' %}{% endblock %}
+
+{% block body_content %}
+<div class="row spacer">
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Lessons</h1>
+    </div>
+
+    <div class="col-sm-12">
+    {% if object_list %}
+      {% for lesson in object_list %}
+      <a href="{{ lesson.get_absolute_url }}">
+        <div>
+          <h2>{{ lesson.title }}</h2>
+          <p>{{ lesson.body|truncatechars:150 }}</p>
+          {% if lesson.tags.count > 0 %}
+            <p>
+            {% for tag in lesson.tags.all %}
+              <span class="label label-info">{{ tag.name }}</span>
+            {% endfor %}
+            </p>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-danger">
+        <p>{% trans 'No lessons found.' %}</p>
+      </div>
+    {% endif %}
+    </div>
+  </div>
+</div><!-- .row spacer -->
+{% endblock %}

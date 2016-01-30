@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include '_head.html' %}
+  </head>
+  <body>
+    {% block body %}
+      {% block navbar %}
+        {% include '_navbar.html' %}
+      {% endblock %}
+
+      {% block body_content %}
+      {% endblock %}
+
+      {% block js_scripts %}
+        {% include '_js_scripts.html' %}
+      {% endblock %}
+    {% endblock %}
+  </body>
+</html>

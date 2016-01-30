@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load content_tags %}
+
+{% block head_title %}{% trans 'Quizzer' %}{% endblock %}
+
+{% block body_content %}
+<div class="row spacer">
+  <div class="container">
+    <div class="col-sm-12">
+      <h1>Question</h1>
+
+      <p class="lead">
+        {{ object.body }}
+      </p>
+
+      {% if already_answered %}
+        {% get_user_answer object request.user %}
+      {% else %}
+        <form action="{% url 'answer_create' object.id %}" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-success btn-lg" type="submit">
+            {% trans 'Confirm' %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div><!-- .row spacer -->
+{% endblock %}

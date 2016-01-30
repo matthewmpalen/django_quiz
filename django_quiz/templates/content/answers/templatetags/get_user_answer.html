@@ -1,0 +1,8 @@
+{% if user_answer %}
+<p>Your Answer: {{ user_answer }}</p>
+  {% if user_answer.is_correct %}
+    <p>Correct: <span class="glyphicon glyphicon-ok"></span></p>
+  {% else %}
+    <p>Wrong: <span class="glyphicon glyphicon-remove"></span></p>
+  {% endif %}
+{% endif %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load content_tags %}
+
+{% block head_title %}{% trans 'Quizzer' %}{% endblock %}
+
+{% block body_content %}
+<div class="row spacer">
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Answers</h1>
+      <p><strong>{% trans 'Score:' %}</strong> {{ score }}</p>
+    </div>
+
+    {% if object_list %}
+    <div class="col-sm-12">
+      <ol>
+      {% for answer in object_list %}
+        <li>
+          <p>{{ answer.question.body }}</p>
+          <p>Your Answer: {{ answer.choice }}</p>
+          {% if answer.is_correct %}
+            <p>Correct: <span class="glyphicon glyphicon-ok"></span></p>
+          {% else %}
+            <p>Wrong: <span class="glyphicon glyphicon-remove"></span></p>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ol>
+    </div>
+    {% else %}
+    <div class="alert alert-danger">
+      <p>{% trans 'No answers for this quiz' %}</p>
+    </div>
+    {% endif %}
+  </div>
+</div><!-- .row spacer -->
+{% endblock %}
