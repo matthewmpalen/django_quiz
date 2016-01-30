@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Django
+from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
 # Local
-from .models import Lesson, Question, Quiz
+from .models import Answer, Lesson, Question, Quiz
 
 #########
 # Lesson
@@ -198,3 +199,41 @@ class QuestionCorrectAnswerTestCase(TestCase):
         question = Question.objects.create(quiz=self.quiz, 
             body='Question body')
         self.assertFalse(question.correct_answer)
+
+#########
+# Answer
+#########
+
+class AnswerUserTestCase(TestCase):
+    def setUp(self):
+        self.user1 = None
+        self.user_username = 'testuser'
+        self.user2 = User.objects.create(username=self.user_username)
+        
+        self.lesson_title = 'Lesson title'
+        self.lesson_body = 'Lesson body'
+        self.lesson = Lesson.objects.create(title=self.lesson_title, 
+            body=self.lesson_body)
+
+        self.quiz_title = 'Quiz title'
+        self.quiz = Quiz.objects.create(lesson=self.lesson, 
+            title=self.quiz_title)
+
+        self.question_body = 'Question body'
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body=self.question_body)
+
+        self.choice = False
+
+    def test_none_user(self):
+        with self.assertRaises(ValueError):
+            answer = Answer.objects.create(user=self.user1, 
+                question=self.question, choice=self.choice)
+
+    def test_valid_user(self):
+        answer = Answer.objects.create(user=self.user2, question=self.question, 
+            choice=self.choice)
+        self.assertEqual(answer.user, self.user2)
+        self.assertEqual(answer.question, self.question)
+        self.assertEqual(answer.choice, self.choice)
+        self.assertTrue(answer.is_correct)
