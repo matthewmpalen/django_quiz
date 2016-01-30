@@ -237,3 +237,74 @@ class AnswerUserTestCase(TestCase):
         self.assertEqual(answer.question, self.question)
         self.assertEqual(answer.choice, self.choice)
         self.assertTrue(answer.is_correct)
+
+class AnswerQuestionTestCase(TestCase):
+    def setUp(self):
+        self.user_username = 'testuser'
+        self.user = User.objects.create(username=self.user_username)
+        
+        self.lesson_title = 'Lesson title'
+        self.lesson_body = 'Lesson body'
+        self.lesson = Lesson.objects.create(title=self.lesson_title, 
+            body=self.lesson_body)
+
+        self.quiz_title = 'Quiz title'
+        self.quiz = Quiz.objects.create(lesson=self.lesson, 
+            title=self.quiz_title)
+
+        self.question1 = None
+        self.question_body = 'Question body'
+        self.question2 = Question.objects.create(quiz=self.quiz, 
+            body=self.question_body)
+
+        self.choice = False
+
+    def test_none_question(self):
+        with self.assertRaises(ValueError):
+            answer = Answer.objects.create(user=self.user, 
+                question=self.question1, choice=self.choice)
+
+    def test_valid_question(self):
+        answer = Answer.objects.create(user=self.user, question=self.question2, 
+            choice=self.choice)
+        self.assertEqual(answer.user, self.user)
+        self.assertEqual(answer.question, self.question2)
+        self.assertEqual(answer.choice, self.choice)
+        self.assertTrue(answer.is_correct)
+
+class AnswerChoiceTestCase(TestCase):
+    def setUp(self):
+        self.user_username = 'testuser'
+        self.user = User.objects.create(username=self.user_username)
+        
+        self.lesson_title = 'Lesson title'
+        self.lesson_body = 'Lesson body'
+        self.lesson = Lesson.objects.create(title=self.lesson_title, 
+            body=self.lesson_body)
+
+        self.quiz_title = 'Quiz title'
+        self.quiz = Quiz.objects.create(lesson=self.lesson, 
+            title=self.quiz_title)
+
+        self.question_body = 'Question body'
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body=self.question_body)
+
+        self.choice1 = False
+        self.choice2 = True
+
+    def test_false_choice(self):
+        answer = Answer.objects.create(user=self.user, question=self.question, 
+            choice=self.choice1)
+        self.assertEqual(answer.user, self.user)
+        self.assertEqual(answer.question, self.question)
+        self.assertEqual(answer.choice, self.choice1)
+        self.assertTrue(answer.is_correct)
+
+    def test_true_choice(self):
+        answer = Answer.objects.create(user=self.user, question=self.question, 
+            choice=self.choice2)
+        self.assertEqual(answer.user, self.user)
+        self.assertEqual(answer.question, self.question)
+        self.assertEqual(answer.choice, self.choice2)
+        self.assertFalse(answer.is_correct)
