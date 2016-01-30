@@ -72,6 +72,27 @@ class LessonDuplicateTestCase(TestCase):
 # Quiz
 #######
 
+class QuizLessonTestCase(TestCase):
+    def setUp(self):
+        self.lesson1 = None
+
+        self.lesson_title = 'Lesson title'
+        self.lesson_body = 'Lesson body'
+        self.lesson2 = Lesson.objects.create(title=self.lesson_title, 
+            body=self.lesson_body)
+
+        self.title = 'Quiz title'
+
+    def test_none_lesson(self):
+        with self.assertRaises(ValueError):
+            quiz = Quiz.objects.create(lesson=self.lesson1, title=self.title)
+
+    def test_valid_lesson(self):
+        quiz = Quiz.objects.create(lesson=self.lesson2, title=self.title)
+        self.assertEqual(quiz.lesson.title, self.lesson_title)
+        self.assertEqual(quiz.lesson.body, self.lesson_body)
+        self.assertEqual(quiz.title, self.title)
+
 class QuizTitleTestCase(TestCase):
     def setUp(self):
         self.lesson = Lesson.objects.create(title='Lesson title', 
@@ -111,6 +132,25 @@ class QuizDuplicateTestCase(TestCase):
 ###########
 # Question
 ###########
+
+class QuestionQuizTestCase(TestCase):
+    def setUp(self):
+        self.quiz1 = None
+        lesson = Lesson.objects.create(title='Lesson title', 
+            body='Lesson body')
+        self.quiz_title = 'Quiz title'
+        self.quiz2 = Quiz.objects.create(lesson=lesson, title=self.quiz_title)
+
+        self.body = 'Question body'
+
+    def test_none_quiz(self):
+        with self.assertRaises(ValueError):
+            question = Question.objects.create(quiz=self.quiz1, body=self.body) 
+
+    def test_valid_quiz(self):
+        question = Question.objects.create(quiz=self.quiz2, body=self.body)
+        self.assertEqual(question.quiz.title, self.quiz_title)
+        self.assertEqual(question.body, self.body)
 
 class QuestionBodyTestCase(TestCase):
     def setUp(self):
