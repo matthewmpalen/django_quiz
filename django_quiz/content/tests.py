@@ -358,6 +358,10 @@ class AnswerDuplicateTestCase(TestCase):
 # Views
 ###############################################################################
 
+#########
+# Lesson
+#########
+
 class LessonListViewTestCase(TestCase):
     def setUp(self):
         self.url = reverse('lesson_list')
@@ -385,3 +389,164 @@ class LessonListViewTestCase(TestCase):
 
         self.assertTrue(self.lesson1 in object_list)
         self.assertTrue(self.lesson2 in object_list)
+
+class LessonDetailViewTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+
+        self.url = reverse('lesson_detail', args=(self.lesson.id,))
+        self.client = Client()
+
+        self.username = 'testuser'
+        self.password = '0xdeadbeef'
+        self.user = User.objects.create_user(username=self.username, 
+            password=self.password)
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        obj = response.context['object']
+
+        self.assertTrue(self.lesson == obj)
+
+#######
+# Quiz
+#######
+
+class QuizDetailViewTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+        self.quiz = Quiz.objects.create(lesson=self.lesson, title='Quiz title')
+
+        self.url = reverse('quiz_detail', args=(self.quiz.id,))
+        self.client = Client()
+
+        self.username = 'testuser'
+        self.password = '0xdeadbeef'
+        self.user = User.objects.create_user(username=self.username, 
+            password=self.password)
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        obj = response.context['object']
+
+        self.assertTrue(self.quiz == obj)
+
+class QuizAnswerListViewTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+        self.quiz = Quiz.objects.create(lesson=self.lesson, title='Quiz title')
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body='Question body')
+
+        self.url = reverse('quiz_answer_list', args=(self.quiz.id,))
+        self.client = Client()
+
+        self.username1 = 'testuser'
+        self.password1 = '0xdeadbeef'
+
+        self.user1 = User.objects.create_user(username=self.username1, 
+            password=self.password1)
+        self.answer1 = Answer.objects.create(user=self.user1, 
+            question=self.question)
+
+        self.username2 = 'altuser'
+        self.password2 = '0xbeefdead'
+
+        self.user2 = User.objects.create_user(username=self.username2, 
+            password=self.password2)
+        self.answer2 = Answer.objects.create(user=self.user2, 
+            question=self.question)
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username1, password=self.password1)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        object_list = response.context['object_list']
+
+        # Only authenticated user's answers are served
+        self.assertTrue(self.answer1 in object_list)
+        self.assertTrue(self.answer2 not in object_list)
+
+###########
+# Question
+###########
+
+class QuestionDetailViewTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+        self.quiz = Quiz.objects.create(lesson=self.lesson, title='Quiz title')
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body='Question body')
+
+        self.url = reverse('question_detail', args=(self.question.id,))
+        self.client = Client()
+
+        self.username = 'testuser'
+        self.password = '0xdeadbeef'
+        self.user = User.objects.create_user(username=self.username, 
+            password=self.password)
+
+    def test_anonymous_user(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        obj = response.context['object']
+
+        self.assertTrue(self.question == obj)
+
+#########
+# Answer
+#########
+
+class AnswerCreateViewTestCase(TestCase):
+    def setUp(self):
+        self.lesson = Lesson.objects.create(title='Music', 
+            body='You must practice.')
+        self.quiz = Quiz.objects.create(lesson=self.lesson, title='Quiz title')
+        self.question = Question.objects.create(quiz=self.quiz, 
+            body='Question body')
+
+        self.url = reverse('answer_create', args=(self.question.id,))
+        self.client = Client()
+
+        self.username = 'testuser'
+        self.password = '0xdeadbeef'
+        self.user = User.objects.create_user(username=self.username, 
+            password=self.password)
+
+    def test_anonymous_user(self):
+        data = {'choice': False}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        self.client.login(username=self.username, password=self.password)
+        data = {'choice': False}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 302)
+        url = reverse('lesson_list')
+        self.assertEqual(response['Location'], url)
