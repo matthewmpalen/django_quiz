@@ -46,7 +46,7 @@ class Quiz(models.Model):
 
     def get_score(self, user):
         correct_answer_count = Answer.objects.filter(user=user, 
-            is_correct=True).count()
+            question__quiz=self, is_correct=True).count()
         question_count = Question.objects.filter(quiz=self).count()
         if question_count == 0:
             return 'N/A'
